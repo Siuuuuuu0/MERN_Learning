@@ -3,6 +3,7 @@ import PostAuthor from './PostAuthor';
 import TimeAgo from './TimeAgo';
 import ReactionButtons from './ReactionButtons';
 import { Link } from 'react-router-dom';
+import React from 'react';
 
 const PostsExcerpt = ({post}) => {
   return (
@@ -18,5 +19,8 @@ const PostsExcerpt = ({post}) => {
     </article>
   )
 }
-
+// PostsExcerpt = React.memo(PostsExcerpt); WITH let PostsExcert NOT const PostsExcerpt
+//it allows the component to not rerender if the props it received did not change
+//earlier when we added reactions, everything was rerendering, now only the specific post
+//but, state normalization
 export default PostsExcerpt;

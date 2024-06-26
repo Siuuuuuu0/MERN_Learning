@@ -1,4 +1,4 @@
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'; //nanoid generates a random id
+import {createSlice, createAsyncThunk, createSelector} from '@reduxjs/toolkit'; //nanoid generates a random id
 import { sub } from 'date-fns';
 import axios from 'axios'; 
 const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
@@ -127,6 +127,10 @@ export const getPostsError = (state)=>state.posts.error;
 export const getPostsCount = (state)=>state.posts.count;
 export const selectPostById = (state, postId)=>
     state.posts.posts.find(post => post.id===postId);
+export const selectPostsByUser = createSelector( //one or more input functions inside brackets => values returned are the dependencies
+    [selectAllPosts, (state, userId)=>userId], 
+    (posts, userId) =>posts.filter(post => post.userId === userId) // only if posts or userId changes its the only time we will get smtg new from the selector
+); //now we do not rerender the userpage every time
 //thunk -> prog term that means a piece of code that does some delayed work
 
 
