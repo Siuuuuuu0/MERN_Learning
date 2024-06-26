@@ -3,9 +3,11 @@ import PostAuthor from './PostAuthor';
 import TimeAgo from './TimeAgo';
 import ReactionButtons from './ReactionButtons';
 import { Link } from 'react-router-dom';
-import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectPostById } from './postSlice';
 
-const PostsExcerpt = ({post}) => {
+const PostsExcerpt = ({postId}) => {
+  const post = useSelector(state => selectPostById(state, postId));
   return (
     <article>
         <h2>{post.title}</h2>
@@ -23,4 +25,7 @@ const PostsExcerpt = ({post}) => {
 //it allows the component to not rerender if the props it received did not change
 //earlier when we added reactions, everything was rerendering, now only the specific post
 //but, state normalization
+// no duplicate data, creates an ID lookup
+//lookup table -> object with an IDs array which has a nested entities object with all the objects
+//react toolkit offers a createEntityAdapter API 
 export default PostsExcerpt;

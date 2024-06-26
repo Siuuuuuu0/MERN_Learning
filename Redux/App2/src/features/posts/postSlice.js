@@ -1,15 +1,24 @@
-import {createSlice, createAsyncThunk, createSelector} from '@reduxjs/toolkit'; //nanoid generates a random id
+import {createSlice, createAsyncThunk, createSelector, createEntityAdapter} from '@reduxjs/toolkit'; //nanoid generates a random id
 import { sub } from 'date-fns';
 import axios from 'axios'; 
 const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
 
+const postsAdapter = createEntityAdapter({
+    sortComparer : (a, b) => b.date.localeCompare(a.date)
+})
 
-const initialState = {
-    posts : [], 
+// const initialState = {
+//     posts : [], 
+//     status : 'idle', //idle || loading || succeeded || failed
+//     error : null, 
+//     count : 0
+// }
+
+const initialState = postsAdapter.getInitialState({
     status : 'idle', //idle || loading || succeeded || failed
     error : null, 
     count : 0
-}
+})
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () =>{
     const response = await axios.get(POSTS_URL); 
@@ -53,7 +62,8 @@ const postsSlice = createSlice({
         //reducer to handle new Reactions
         reactionAdded(state, action){
             const {postId, reaction} = action.payload; 
-            const existingPost = state.posts.find(post=>post.id===postId); 
+            // const existingPost = state.posts.find(post=>post.id===postId); 
+            const existingPost = state.entities[postId]; 
             if(existingPost){
                 existingPost.reactions[reaction]++; //immerjs so we can write like this
             }
@@ -82,8 +92,8 @@ const postsSlice = createSlice({
                 }; 
                 return post; 
             }); 
-            state.posts = loadedPosts; //immerjs
-
+            // state.posts = loadedPosts; //immerjs
+            postsAdapter.upsertMany(state, loadedPosts); 
         })
         .addCase(fetchPosts.rejected, (state, action)=>{
             state.status='failed'; 
@@ -99,34 +109,42 @@ const postsSlice = createSlice({
                 rocket : 0, 
                 coffee : 0
             };
-            state.posts.push(action.payload); 
+            // state.posts.push(action.payload); 
+            postsAdapter.addOne(state, action.payload); 
         })
         .addCase(updatePost.fulfilled, (state, action)=>{ //status code 500, update not passed
             if(!action.payload?.id){
                 return;
             }
-            const {id} = action.payload; 
+            // const {id} = action.payload; 
             action.payload.date = new Date().toISOString(); 
-            const posts = state.posts.filter(post => post.id!==id); 
-            state.posts = [...posts, action.payload]; 
+            // const posts = state.posts.filter(post => post.id!==id); 
+            // state.posts = [...posts, action.payload]; 
+            postsAdapter.upsertOne(state, action.payload); 
         })
         .addCase(deletePost.fulfilled, (state, action)=>{
             if(!action.payload?.id) return; 
             const {id} = action.payload; 
-            const posts = state.posts.filter(post => post.id!==id); 
-            state.posts = posts; 
+            // const posts = state.posts.filter(post => post.id!==id); 
+            // state.posts = posts; 
+            postsAdapter.removeOne(state, id); 
         })
     }
 }); 
 export default postsSlice.reducer; 
 export const {increaseCount, reactionAdded} = postsSlice.actions; //createSlice automatically genertaes an action creator function with the same name
-export const selectAllPosts = (state)=>state.posts.posts; //object and posts inside the object 
+// export const selectAllPosts = (state)=>state.posts.posts; //object and posts inside the object 
 //we made the selector bc if we change something, we do need to change it everywhere, only in the selector
 export const getPostsStatus = (state)=>state.posts.status;
 export const getPostsError = (state)=>state.posts.error;
 export const getPostsCount = (state)=>state.posts.count;
-export const selectPostById = (state, postId)=>
-    state.posts.posts.find(post => post.id===postId);
+export const { //we give the selector aliases
+    selectAll : selectAllPosts, 
+    selectById : selectPostById, 
+    selectIds : selectPostIds
+} = postsAdapter.getSelectors(state => state.posts);
+// export const selectPostById = (state, postId)=>
+//     state.posts.posts.find(post => post.id===postId);
 export const selectPostsByUser = createSelector( //one or more input functions inside brackets => values returned are the dependencies
     [selectAllPosts, (state, userId)=>userId], 
     (posts, userId) =>posts.filter(post => post.userId === userId) // only if posts or userId changes its the only time we will get smtg new from the selector
