@@ -1,4 +1,4 @@
-import {createSlice, nanoid, createAsyncThunk} from '@reduxjs/toolkit'; //nanoid generates a random id
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'; //nanoid generates a random id
 import { sub } from 'date-fns';
 import axios from 'axios'; 
 const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
@@ -7,7 +7,8 @@ const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
 const initialState = {
     posts : [], 
     status : 'idle', //idle || loading || succeeded || failed
-    error : null
+    error : null, 
+    count : 0
 }
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () =>{
@@ -49,30 +50,6 @@ const postsSlice = createSlice({
     name : 'posts', 
     initialState, 
     reducers : {
-        postAdded : {
-            reducer(state, action){
-                state.posts.push(action.payload); //we can write like, as Immer.js which Redux uses will not mutate the state.post as it might seem(new state.posts is created)
-            //this 'state.post mutation' only works createSlice
-            }, 
-            prepare(title, content, userId){ //This is an optional function that allows you to customize the payload of the action.
-                return {
-                    payload : {
-                        id : nanoid(), 
-                        title, 
-                        content, 
-                        date : new Date().toISOString(),
-                        userId, 
-                        reactions : {
-                            thumbsUp : 0, 
-                            wow : 0, 
-                            heart : 0, 
-                            rocket : 0, 
-                            coffee : 0
-                        }
-                    }
-                }
-            }
-        }, 
         //reducer to handle new Reactions
         reactionAdded(state, action){
             const {postId, reaction} = action.payload; 
@@ -80,7 +57,10 @@ const postsSlice = createSlice({
             if(existingPost){
                 existingPost.reactions[reaction]++; //immerjs so we can write like this
             }
-        } 
+        }, 
+        increaseCount(state, action){
+            state.count++; 
+        }
     },
     extraReducers(builder){ //extra reducers bc sometimes the slice has to respond to reducers not defined
         //builder object that helps define additional case rducers for actions defined outside of the slice, like the fetch posts
@@ -139,11 +119,40 @@ const postsSlice = createSlice({
     }
 }); 
 export default postsSlice.reducer; 
-export const {postAdded, reactionAdded} = postsSlice.actions; //createSlice automatically genertaes an action creator function with the same name
+export const {increaseCount, reactionAdded} = postsSlice.actions; //createSlice automatically genertaes an action creator function with the same name
 export const selectAllPosts = (state)=>state.posts.posts; //object and posts inside the object 
 //we made the selector bc if we change something, we do need to change it everywhere, only in the selector
 export const getPostsStatus = (state)=>state.posts.status;
 export const getPostsError = (state)=>state.posts.error;
+export const getPostsCount = (state)=>state.posts.count;
 export const selectPostById = (state, postId)=>
     state.posts.posts.find(post => post.id===postId);
 //thunk -> prog term that means a piece of code that does some delayed work
+
+
+
+
+// postAdded : {
+//     reducer(state, action){
+//         state.posts.push(action.payload); //we can write like, as Immer.js which Redux uses will not mutate the state.post as it might seem(new state.posts is created)
+//     //this 'state.post mutation' only works createSlice
+//     }, 
+//     prepare(title, content, userId){ //This is an optional function that allows you to customize the payload of the action.
+//         return {
+//             payload : {
+//                 id : nanoid(), 
+//                 title, 
+//                 content, 
+//                 date : new Date().toISOString(),
+//                 userId, 
+//                 reactions : {
+//                     thumbsUp : 0, 
+//                     wow : 0, 
+//                     heart : 0, 
+//                     rocket : 0, 
+//                     coffee : 0
+//                 }
+//             }
+//         }
+//     }
+// }, 
