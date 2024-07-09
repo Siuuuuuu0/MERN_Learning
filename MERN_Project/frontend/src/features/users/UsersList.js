@@ -18,9 +18,7 @@ const UsersList = () => {
   else if(isError) cotent = <p className="errmsg">{error?.data?.message}</p>;
   else if (isSuccess){
     const {ids} = users; 
-    const tableContent = ids?.length 
-      ? ids.map(userId => <User key={userId} userId={userId} />)
-      : null
+    const tableContent = ids?.length &&  ids.map(userId => <User key={userId} userId={userId} />)
     content = (
       <table className='table table--users'>
         <thead className='table__thead'>
