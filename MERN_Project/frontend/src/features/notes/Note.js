@@ -1,13 +1,19 @@
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'; 
 import {faPenToSquare} from '@fortawesome/free-solid-svg-icons'; 
 import {useNavigate} from 'react-router-dom'; 
-import {useSelector} from 'react-redux'; 
-import { selectNoteById } from './notesApiSlice';
-
+// import {useSelector} from 'react-redux'; 
+// import { selectNoteById } from './notesApiSlice';
+import { useGetNoteQuery } from './notesApiSlice'
 import React from 'react'
+import {memo} from 'react'
 
 const Note = ({noteId}) => {
-  const note = useSelector(state => selectNoteById(state, noteId))
+//   const note = useSelector(state => selectNoteById(state, noteId))
+  const {note} = useGetNoteQuery('notesList', {
+    selectFromResult : ({data}) => ({
+        note : data?.entities[noteId]
+    })
+  })
   const navigate = useNavigate()
   if(note){
     const created = new Date(note.createAt).toLocaleString('en-US', {day : 'numeric', month : 'long'});
@@ -39,5 +45,6 @@ const Note = ({noteId}) => {
     )
   } else return null
 }
+const memoizedNote = memo(Note) //rerendering when changes
 
-export default Note
+export default memoizedNote
