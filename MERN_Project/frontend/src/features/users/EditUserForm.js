@@ -1,94 +1,107 @@
-import { useState, useEffect } from "react";
-import { useUpdateUserMutation, useDeleteUserMutation } from "./usersApiSlice";
-import {useNavigate} from 'react-router-dom'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSave, faTrashCan} from '@fortawesome/free-solid-svg-icons'
-import {ROLES} from '../../config/roles'
-import React from 'react'
+import { useState, useEffect } from "react"
+import { useUpdateUserMutation, useDeleteUserMutation } from "./usersApiSlice"
+import { useNavigate } from "react-router-dom"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSave, faTrashCan } from "@fortawesome/free-solid-svg-icons"
+import { ROLES } from "../../config/roles"
 
-const USER_REGEX = /^[A-z]{3, 20}$/
-const PWD_REGEX = /^[A-z0-9!@#$%]{4, 12}$/
+const USER_REGEX = /^[A-z]{3,20}$/
+const PWD_REGEX = /^[A-z0-9!@#$%]{4,12}$/
 
-const EditUserForm = ({user}) => {
+const EditUserForm = ({ user }) => {
 
-  const [updateUser, {
-    isLoading, 
-    isSuccess, 
-    isError,
-    error
-  }] = useUpdateUserMutation()
+    const [updateUser, {
+        isLoading,
+        isSuccess,
+        isError,
+        error
+    }] = useUpdateUserMutation()
 
-  const [deleteUser, {
-    isSuccess : isDelSuccess,
-    isError : isDelError, 
-    error : delError
-  }] = useDeleteUserMutation()
+    const [deleteUser, {
+        isSuccess: isDelSuccess,
+        isError: isDelError,
+        error: delerror
+    }] = useDeleteUserMutation()
 
-  const navigate = useNavigate()
+    const navigate = useNavigate()
 
-  const [username, setUsername] = useState(user.username)
-  const [validUsername, setValidUsername] = useState(false)
-  const [password, setPassword] = useState('')
-  const[validPassword, setValidPassword] = useState(false)
-  const [roles, setRoles] = useState(user.roles)
-  const [active, setActive] = useState(user.active)
+    const [username, setUsername] = useState(user.username)
+    const [validUsername, setValidUsername] = useState(false)
+    const [password, setPassword] = useState('')
+    const [validPassword, setValidPassword] = useState(false)
+    const [roles, setRoles] = useState(user.roles)
+    const [active, setActive] = useState(user.active)
 
-  useEffect(()=>{
-    setValidUsername(USER_REGEX.test(username))
-  }, [username])
+    useEffect(() => {
+        setValidUsername(USER_REGEX.test(username))
+    }, [username])
 
-  useEffect(()=>{
-    setValidPassword(PWD_REGEX.test(password))
-  }, [password])
+    useEffect(() => {
+        setValidPassword(PWD_REGEX.test(password))
+    }, [password])
 
-  useEffect(()=>{
-    if(isSuccess || isDelSuccess){
-        setUsername('')
-        setPassword('')
-        setRoles([])
-        navigate('/dash/users')
+    useEffect(() => {
+        console.log(isSuccess)
+        if (isSuccess || isDelSuccess) {
+            setUsername('')
+            setPassword('')
+            setRoles([])
+            navigate('/dash/users')
+        }
+
+    }, [isSuccess, isDelSuccess, navigate])
+
+    const onUsernameChanged = e => setUsername(e.target.value)
+    const onPasswordChanged = e => setPassword(e.target.value)
+
+    const onRolesChanged = e => {
+        const values = Array.from(
+            e.target.selectedOptions,
+            (option) => option.value
+        )
+        setRoles(values)
     }
-  }, [isSuccess, isDelSuccess, navigate])
 
-  const onUsernameChanged = e => setUsername(e.target.value)
-  const onPasswordChanged = e => setPassword(e.target.value)
+    const onActiveChanged = () => setActive(prev => !prev)
 
-  const onRolesChanged = e => {
-    const values = Array.from(
-        e.target.selectedOptions,
-        (option) => option.value
-    )
-    setRoles(values)
-  }
+    const onSaveUserClicked = async (e) => {
+        if (password) {
+            await updateUser({ id: user.id, username, password, roles, active })
+        } else {
+            await updateUser({ id: user.id, username, roles, active })
+        }
+    }
 
-   const onActiveChanged = () => setActive(prev => !prev)
+    const onDeleteUserClicked = async () => {
+        await deleteUser({ id: user.id })
+    }
 
-   const onSaveUserClicked = async(e) => {
-     if (password) {
-        await updateUser({id : user.id, username, password, roles, active})
-     }else{
-        await updateUser({id : user.id, username, roles, active})
-     }
-   }
+    const options = Object.values(ROLES).map(role => {
+        return (
+            <option
+                key={role}
+                value={role}
 
-   const onDeleteUserClicked = async () => {
-    await deleteUser({id : user.id})
-   }
+            > {role}</option >
+        )
+    })
 
-   let canSave
-   if(password){
-    canSave = [roles.length, validUsername, validPassword].every(Boolean) && !isLoading
-   }else{
-    canSave = [roles.length, validUsername].every(Boolean) && !isLoading
-   }
+    let canSave
+    if (password) {
+        canSave = [roles.length, validUsername, validPassword].every(Boolean) && !isLoading
+    } else {
+        canSave = [roles.length, validUsername].every(Boolean) && !isLoading
+    }
 
-   const errClass = isError ? 'errmsg' : 'offscreen'
-   const validUserClass = !validUsername ? 'form__input--incomplete' : ''
-   const validPwdClass = !validPassword ? 'form__input--incomplete' : ''
-   const validRolesClass = !Boolean(roles.length) ? 'form__input--incomplete' : ''
+    const errClass = (isError || isDelError) ? "errmsg" : "offscreen"
+    const validUserClass = !validUsername ? 'form__input--incomplete' : ''
+    const validPwdClass = password && !validPassword ? 'form__input--incomplete' : ''
+    const validRolesClass = !Boolean(roles.length) ? 'form__input--incomplete' : ''
 
-   const errContent = (error?.data?.message || delError?.data?.message) ?? ''
-   const content = (
+    const errContent = (error?.data?.message || delerror?.data?.message) ?? ''
+
+
+    const content = (
         <>
             <p className={errClass}>{errContent}</p>
 
@@ -168,5 +181,4 @@ const EditUserForm = ({user}) => {
 
     return content
 }
-
 export default EditUserForm

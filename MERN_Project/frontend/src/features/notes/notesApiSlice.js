@@ -78,7 +78,7 @@ export const {
     useDeleteNoteMutation
 } = notesApiSlice
 
-export const selectNotesResult = notesApiSlice.endpoints.getnotes.select()
+export const selectNotesResult = notesApiSlice.endpoints.getNotes.select()
 
 const selectNotesData = createSelector(
     selectNotesResult,

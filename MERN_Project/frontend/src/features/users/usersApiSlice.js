@@ -70,7 +70,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 })
 
 export const {
-    useGetUserQuery,
+    useGetUsersQuery,
     useAddNewUserMutation, 
     useUpdateUserMutation, 
     useDeleteUserMutation

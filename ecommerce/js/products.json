@@ -1,0 +1,59 @@
+[
+    {
+        "id": 1,
+        "name":"Shirt 1",
+        "price": 200,
+        "image": "img/f1.jpg", 
+        "similar" : "1"
+    },
+    {
+        "id": 2,
+        "name":"Shirt 2",
+        "price": 250,
+        "image": "img/f2.jpg", 
+        "similar" : "1"
+    },
+    {
+        "id": 3,
+        "name":"Shirt 3",
+        "price": 290,
+        "image": "img/f3.jpg", 
+        "similar" : "1"
+    },
+    {
+        "id": 4,
+        "name":"Shirt 4",
+        "price": 200,
+        "image": "img/f4.jpg", 
+        "similar" : "1"
+    },
+    {
+        "id": 5,
+        "name":"Shirt 5",
+        "price": 300,
+        "image": "img/f5.jpg", 
+        "similar" : "2"
+    },
+    {
+        "id": 6,
+        "name":"Shirt 6",
+        "price": 200,
+        "image": "img/f6.jpg", 
+        "similar" : "2"
+    },
+    {
+        "id": 7,
+        "name":"Shirt 7",
+        "price": 200,
+        "image": "img/f7.jpg",
+        "similar" : "2"
+    },
+    {
+        "id": 8,
+        "name":"Shirt 8",
+        "price": 200,
+        "image": "img/f8.jpg", 
+        "similar" : "2"
+    }
+
+]

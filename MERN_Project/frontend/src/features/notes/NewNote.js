@@ -1,10 +1,10 @@
 import NewNoteForm from './NewNoteForm'
-import { useGetUserQuery } from '../users/usersApiSlice'
+import { useGetUsersQuery } from '../users/usersApiSlice'
 import PulseLoader from 'react-spinners/PulseLoader'
 
 const NewNote = () => {
     // const users = useSelector(selectAllUsers)
-    const users = useGetUserQuery('usersList', {
+    const users = useGetUsersQuery('usersList', {
         selectFromResult : ({data})=>({
             users : data?.ids.mao(id=>data?.entities[id])
         })

@@ -21,7 +21,7 @@ const NotesList = () => {
   
   let content; 
   if(isLoading) content = <p>Loading</p>; 
-  else if(isError) cotent = <p className="errmsg">{error?.data?.message}</p>;
+  else if(isError) content = <p className="errmsg">{error?.data?.message}</p>;
   else if (isSuccess){
     const {ids, entities} = notes
 
@@ -32,7 +32,7 @@ const NotesList = () => {
       filteredIds = ids.filter(noteId => entities[noteId].username===username)
     }
 
-    const tableContent = ids?.length && filteredIds.map(noteId => <Note key={userId} noteId={noteId}/>)
+    const tableContent = ids?.length && filteredIds.map(noteId => <Note key={noteId} noteId={noteId}/>)
 
     content = (
       <table className="table table--notes">
